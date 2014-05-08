@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using PullDataForGoDaddy.Models;
 
@@ -27,25 +28,47 @@ namespace PullDataForGoDaddy
             var load = db.Sectors.Take(1);
 
             var jsonData = JsonConvert.SerializeObject(load);
+
+            jsonData = jsonData.Replace("T00:00:00", "");
+
             string uri = BaseUri + LoadSectorUri;
             // sr.token = "bc2afdc0-6f68-497a-9f6c-4e261331c256";
+
+            Regex regex = new Regex(@"\b(?<year>\d{2,4})-(?<month>\d{1,2})-(?<day>\d{1,2})\b"); //@"\d{4}-\d{2}-\d{2}"); //
+            Match snot = regex.Match(jsonData);
+
+            var beer  = MDYToDMY(jsonData);
 
             SectorRequest sr = new SectorRequest
                 {
                     sectors = load.ToList(),
                     token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
                 };
-
-
+            
             var result = Post(uri, sr);
 
         }
 
+        private static string MDYToDMY(string input)
+        {
+            try
+            {
+                return Regex.Replace(input,
+                  //    @"\\b(?<month>\\d{1,2})/(?<day>\\d{1,2})/(?<year>\\d{2,4})\\b",
+                      @"\b(?<year>\d{2,4})-(?<month>\d{1,2})-(?<day>\d{1,2})\b",
+                      "${month}/${day}/${year}"); //, RegexOptions.None,
+                  //    TimeSpan.FromMilliseconds(150));
+            }
+            catch (Exception ex) //RegexMatchTimeoutException)
+            {
+                return input;
+            }
+        }
 
         private static string Post<T>(string uri, T postData)
         {
             string jsonData = string.Empty;
-            const string applicationType = "application/json"; // "application/x-www-form-urlencoded"; // 
+            const string applicationType = "application/json;charset=utf-8"; //  "application/json"; // "application/x-www-form-urlencoded"; // 
 
             try
             {
