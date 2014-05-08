@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using PullDataForGoDaddy.Models;
 
 namespace PullDataForGoDaddy
@@ -69,6 +70,11 @@ namespace PullDataForGoDaddy
         {
             string jsonData = string.Empty;
             const string applicationType = "application/json;charset=utf-8"; //  "application/json"; // "application/x-www-form-urlencoded"; // 
+
+            // Create Json.Net formatter serializing DateTime using the ISO 8601 format
+            JsonSerializerSettings serializerSettings = new JsonSerializerSettings();
+            serializerSettings.Converters.Add(new IsoDateTimeConverter());
+            GlobalConfiguration.Configuration.Formatters[0] = new JsonNetFormatter(serializerSettings);
 
             try
             {
