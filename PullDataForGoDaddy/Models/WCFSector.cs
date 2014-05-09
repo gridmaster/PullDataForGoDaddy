@@ -1,18 +1,14 @@
-﻿using System;
-using System.Globalization;
-using System.Runtime.Serialization;
+﻿using System.Globalization;
 using Newtonsoft.Json;
 
 namespace PullDataForGoDaddy.Models
 {
-    public class Sector
+    public class WCFSector
     {
         [JsonProperty(PropertyName = "Id")]
         public int Id { get; set; }
-
-        [JsonProperty(PropertyName = "date")]
-        public DateTime Date { get; set; }
-
+        [JsonProperty(PropertyName = "WCFXferDate")]
+        public string WCFXferDate { get; set; }
         [JsonProperty(PropertyName = "Name")]
         public string Name { get; set; }
         [JsonProperty(PropertyName = "OneDayPriceChgPerCent")]
@@ -34,19 +30,22 @@ namespace PullDataForGoDaddy.Models
         [JsonProperty(PropertyName = "PriceToFreeCashFlowMrq")]
         public decimal PriceToFreeCashFlowMrq { get; set; }
 
-        private string dateForSerialization;
+        public WCFSector(){}
 
-        [OnSerializing]
-        void OnSerializing(StreamingContext context)
+        public WCFSector(Sector sector)
         {
-            this.dateForSerialization = this.Date.ToString("MM/dd/yyyy",
-                CultureInfo.InvariantCulture);
-        }
-
-        [OnDeserializing]
-        void OnDeserializing(StreamingContext context)
-        {
-            this.dateForSerialization = "1900-01-01";
+            Id = sector.Id;
+            WCFXferDate = sector.Date.ToString(CultureInfo.InvariantCulture);
+            Name = sector.Name;
+            OneDayPriceChgPerCent = sector.OneDayPriceChgPerCent;
+            MarketCap = sector.MarketCap;
+            PriceToEarnings = sector.PriceToEarnings;
+            ROEPerCent = sector.ROEPerCent;
+            DivYieldPerCent = sector.DivYieldPerCent;
+            DebtToEquity = sector.DebtToEquity;
+            PriceToBook = sector.PriceToBook;
+            NetProfitMarginMrq = sector.NetProfitMarginMrq;
+            PriceToFreeCashFlowMrq = sector.PriceToFreeCashFlowMrq;
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -23,10 +25,13 @@ namespace PullDataForGoDaddy
             var yesterday = DateTime.Now.AddDays(-1);
             //if (db.Sectors.Any(p => p.Date > yesterday))
             //{
-                
+
             //}
 
-            var load = db.Sectors.Take(1);
+            var load = db.Sectors.Take(100).ToList();
+            // var load = db.Sectors.ToList();
+
+            List<WCFSector> WcfSector = load.Select(item => new WCFSector(item)).ToList();
 
             var jsonData = JsonConvert.SerializeObject(load);
 
@@ -38,14 +43,14 @@ namespace PullDataForGoDaddy
             Regex regex = new Regex(@"\b(?<year>\d{2,4})-(?<month>\d{1,2})-(?<day>\d{1,2})\b"); //@"\d{4}-\d{2}-\d{2}"); //
             Match snot = regex.Match(jsonData);
 
-            var beer  = MDYToDMY(jsonData);
+            var beer = MDYToDMY(jsonData);
 
             SectorRequest sr = new SectorRequest
-                {
-                    sectors = load.ToList(),
-                    token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
-                };
-            
+            {
+                sectors = WcfSector, // .ToList(), // load.ToList(), // 
+                token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
+            };
+
             var result = Post(uri, sr);
 
         }
@@ -71,15 +76,12 @@ namespace PullDataForGoDaddy
             string jsonData = string.Empty;
             const string applicationType = "application/json;charset=utf-8"; //  "application/json"; // "application/x-www-form-urlencoded"; // 
 
-            // Create Json.Net formatter serializing DateTime using the ISO 8601 format
-            JsonSerializerSettings serializerSettings = new JsonSerializerSettings();
-            serializerSettings.Converters.Add(new IsoDateTimeConverter());
-            GlobalConfiguration.Configuration.Formatters[0] = new JsonNetFormatter(serializerSettings);
-
             try
             {
                 jsonData = JsonConvert.SerializeObject(postData);
                 var vuci = JsonConvert.DeserializeObject<SectorRequest>(jsonData);
+
+                jsonData = jsonData.Replace(" 00:00:00", "");
 
                 byte[] requestData = Encoding.UTF8.GetBytes(jsonData);
 

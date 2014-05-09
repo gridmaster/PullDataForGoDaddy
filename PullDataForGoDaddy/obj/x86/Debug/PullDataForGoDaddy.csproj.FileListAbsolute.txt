@@ -21,3 +21,4 @@ C:\Projects\PullDataForGoDaddy\PullDataForGoDaddy\bin\Debug\Newtonsoft.Json.dll
 C:\Projects\PullDataForGoDaddy\PullDataForGoDaddy\bin\Debug\EntityFramework.xml
 C:\Projects\PullDataForGoDaddy\PullDataForGoDaddy\bin\Debug\EntityFramework.SqlServer.xml
 C:\Projects\PullDataForGoDaddy\PullDataForGoDaddy\bin\Debug\Newtonsoft.Json.xml
+C:\Projects\PullDataForGoDaddy\PullDataForGoDaddy\obj\x86\Debug\PullDataForGoDaddy.csprojResolveAssemblyReference.cache
