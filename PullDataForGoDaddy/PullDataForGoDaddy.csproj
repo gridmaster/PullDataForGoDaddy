@@ -55,9 +55,11 @@
   <ItemGroup>
     <Compile Include="Models\BaseRequest.cs" />
     <Compile Include="Models\Industry.cs" />
+    <Compile Include="Models\IndustryRequest.cs" />
     <Compile Include="Models\PullDataContext.cs" />
     <Compile Include="Models\Sector.cs" />
     <Compile Include="Models\SectorRequest.cs" />
+    <Compile Include="Models\WCFIndustry.cs" />
     <Compile Include="Models\WCFSector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

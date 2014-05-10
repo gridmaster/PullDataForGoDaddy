@@ -14,56 +14,25 @@ namespace PullDataForGoDaddy
     {
         private static string BaseUri = @"http://localhost:45667"; //@"http://tickersymbol.info";  // 
         private static string LoadSectorUri = @"/LoadSectors";
+        private static string LoadIndustryUri = @"/LoadIndustries";
 
         private static void Main(string[] args)
         {
-            PullDataContext db = new PullDataContext();
-            string uri = BaseUri + LoadSectorUri;
 
-            var today = DateTime.Now.ToShortDateString();
-            var yesterday = DateTime.Now.AddDays(-1);
-            //if (db.Sectors.Any(p => p.Date > yesterday))
-            //{
+            // LoadSectors();
 
-            //}
+            LoadIndustries();
 
-            // var load = db.Sectors.Take(100).ToList();
-            int start = 0;
-            int end = 100;
-            List<Sector> load = new List<Sector>();
-            do
-            {
-                 load = db.Sectors
-                .Where(x => x.Id > start)
-                .Where(x => x.Id < end)
-                .ToList();
+            //var jsonData = JsonConvert.SerializeObject(load);
 
-                 List<WCFSector> WcfSector = load.Select(item => new WCFSector(item)).ToList();
+            //jsonData = jsonData.Replace("T00:00:00", "");
 
-                 SectorRequest sr = new SectorRequest
-                 {
-                     sectors = WcfSector, // .ToList(), // load.ToList(), // 
-                     token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
-                 };
+            //// sr.token = "bc2afdc0-6f68-497a-9f6c-4e261331c256";
 
-                 var result = Post(uri, sr);
+            //Regex regex = new Regex(@"\b(?<year>\d{2,4})-(?<month>\d{1,2})-(?<day>\d{1,2})\b"); //@"\d{4}-\d{2}-\d{2}"); //
+            //Match snot = regex.Match(jsonData);
 
-                start += 100;
-                end += 100;
-            } while (load.Count > 0);
-
-            
-
-            var jsonData = JsonConvert.SerializeObject(load);
-
-            jsonData = jsonData.Replace("T00:00:00", "");
-
-            // sr.token = "bc2afdc0-6f68-497a-9f6c-4e261331c256";
-
-            Regex regex = new Regex(@"\b(?<year>\d{2,4})-(?<month>\d{1,2})-(?<day>\d{1,2})\b"); //@"\d{4}-\d{2}-\d{2}"); //
-            Match snot = regex.Match(jsonData);
-
-            var beer = MDYToDMY(jsonData);
+            //var beer = MDYToDMY(jsonData);
 
             //SectorRequest sr = new SectorRequest
             //{
@@ -75,15 +44,95 @@ namespace PullDataForGoDaddy
 
         }
 
+        private static string LoadSectors()
+        {
+            PullDataContext db = new PullDataContext();
+            string uri = BaseUri + LoadSectorUri;
+
+            var today = DateTime.Now.ToShortDateString();
+            var yesterday = DateTime.Now.AddDays(-1);
+            //if (db.Sectors.Any(p => p.Date > yesterday))
+            //{
+
+            //}
+
+            string result = string.Empty;
+            int start = 0;
+            int end = 100;
+
+            List<Sector> load = new List<Sector>();
+            do
+            {
+                load = db.Sectors
+                           .Where(x => x.Id > start)
+                           .Where(x => x.Id < end)
+                           .ToList();
+
+                List<WCFSector> WcfSector = load.Select(item => new WCFSector(item)).ToList();
+
+                SectorRequest sr = new SectorRequest
+                {
+                    sectors = WcfSector,
+                    token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
+                };
+
+                result = Post(uri, sr);
+
+                start += 100;
+                end += 100;
+            } while (load.Count > 0);
+
+            return result;
+        }
+
+        private static string LoadIndustries()
+        {
+            PullDataContext db = new PullDataContext();
+            string uri = BaseUri + LoadIndustryUri;
+
+            var today = DateTime.Now.ToShortDateString();
+            var yesterday = DateTime.Now.AddDays(-1);
+            //if (db.Industry.Any(p => p.Date > yesterday))
+            //{
+
+            //}
+
+            string result = string.Empty;
+            int start = 0;
+            int end = 100;
+
+            List<Industry> load = new List<Industry>();
+            do
+            {
+                load = db.Industries
+                       .Where(x => x.Id > start)
+                       .Where(x => x.Id < end)
+                       .ToList();
+
+                List<WCFIndustry> WcfIndustry = load.Select(item => new WCFIndustry(item)).ToList();
+
+                IndustryRequest ir = new IndustryRequest
+                {
+                    industries = WcfIndustry,
+                    token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
+                };
+
+                result = Post(uri, ir);
+
+                start += 100;
+                end += 100;
+            } while (load.Count > 0);
+
+            return result;
+        }
+
         private static string MDYToDMY(string input)
         {
             try
             {
                 return Regex.Replace(input,
-                  //    @"\\b(?<month>\\d{1,2})/(?<day>\\d{1,2})/(?<year>\\d{2,4})\\b",
                       @"\b(?<year>\d{2,4})-(?<month>\d{1,2})-(?<day>\d{1,2})\b",
                       "${month}/${day}/${year}"); //, RegexOptions.None,
-                  //    TimeSpan.FromMilliseconds(150));
             }
             catch (Exception ex) //RegexMatchTimeoutException)
             {
@@ -99,8 +148,7 @@ namespace PullDataForGoDaddy
             try
             {
                 jsonData = JsonConvert.SerializeObject(postData);
-                var vuci = JsonConvert.DeserializeObject<SectorRequest>(jsonData);
-
+                
                 jsonData = jsonData.Replace(" 00:00:00", "");
 
                 byte[] requestData = Encoding.UTF8.GetBytes(jsonData);

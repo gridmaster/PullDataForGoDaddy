@@ -10,7 +10,7 @@ namespace PullDataForGoDaddy.Models
         [JsonProperty(PropertyName = "Id")]
         public int Id { get; set; }
 
-        [JsonProperty(PropertyName = "date")]
+        [JsonProperty(PropertyName = "Date")]
         public DateTime Date { get; set; }
 
         [JsonProperty(PropertyName = "Name")]
