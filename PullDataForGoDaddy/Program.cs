@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using PullDataForGoDaddy.Models;
 
 namespace PullDataForGoDaddy
@@ -20,6 +18,7 @@ namespace PullDataForGoDaddy
         private static void Main(string[] args)
         {
             PullDataContext db = new PullDataContext();
+            string uri = BaseUri + LoadSectorUri;
 
             var today = DateTime.Now.ToShortDateString();
             var yesterday = DateTime.Now.AddDays(-1);
@@ -28,16 +27,37 @@ namespace PullDataForGoDaddy
 
             //}
 
-            var load = db.Sectors.Take(100).ToList();
-            // var load = db.Sectors.ToList();
+            // var load = db.Sectors.Take(100).ToList();
+            int start = 0;
+            int end = 100;
+            List<Sector> load = new List<Sector>();
+            do
+            {
+                 load = db.Sectors
+                .Where(x => x.Id > start)
+                .Where(x => x.Id < end)
+                .ToList();
 
-            List<WCFSector> WcfSector = load.Select(item => new WCFSector(item)).ToList();
+                 List<WCFSector> WcfSector = load.Select(item => new WCFSector(item)).ToList();
+
+                 SectorRequest sr = new SectorRequest
+                 {
+                     sectors = WcfSector, // .ToList(), // load.ToList(), // 
+                     token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
+                 };
+
+                 var result = Post(uri, sr);
+
+                start += 100;
+                end += 100;
+            } while (load.Count > 0);
+
+            
 
             var jsonData = JsonConvert.SerializeObject(load);
 
             jsonData = jsonData.Replace("T00:00:00", "");
 
-            string uri = BaseUri + LoadSectorUri;
             // sr.token = "bc2afdc0-6f68-497a-9f6c-4e261331c256";
 
             Regex regex = new Regex(@"\b(?<year>\d{2,4})-(?<month>\d{1,2})-(?<day>\d{1,2})\b"); //@"\d{4}-\d{2}-\d{2}"); //
@@ -45,13 +65,13 @@ namespace PullDataForGoDaddy
 
             var beer = MDYToDMY(jsonData);
 
-            SectorRequest sr = new SectorRequest
-            {
-                sectors = WcfSector, // .ToList(), // load.ToList(), // 
-                token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
-            };
+            //SectorRequest sr = new SectorRequest
+            //{
+            //    sectors = WcfSector, // .ToList(), // load.ToList(), // 
+            //    token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
+            //};
 
-            var result = Post(uri, sr);
+            //var result = Post(uri, sr);
 
         }
 
