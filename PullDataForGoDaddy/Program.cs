@@ -14,14 +14,17 @@ namespace PullDataForGoDaddy
     {
         private static string BaseUri = @"http://localhost:45667"; //@"http://tickersymbol.info";  // 
         private static string LoadSectorUri = @"/LoadSectors";
+        private static string LoadDailySectorUri = @"/LoadDailySectors";
         private static string LoadIndustryUri = @"/LoadIndustries";
+        private static string LoadDailyIndustryUri = @"/LoadDailyIndustries";
 
         private static void Main(string[] args)
         {
-
+           //  LoadDailySectors();
+            LoadDailyIndustries();
             // LoadSectors();
 
-            LoadIndustries();
+           //  LoadIndustries();
 
             //var jsonData = JsonConvert.SerializeObject(load);
 
@@ -42,6 +45,22 @@ namespace PullDataForGoDaddy
 
             //var result = Post(uri, sr);
 
+        }
+
+        private static string LoadDailySectors()
+        {
+            string uri = BaseUri + LoadDailySectorUri;
+
+            string result = string.Empty;
+
+            BasicRequest br = new BasicRequest
+                {
+                    token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
+                };
+
+            result = Post(uri, br);
+            
+            return result;
         }
 
         private static string LoadSectors()
@@ -122,6 +141,28 @@ namespace PullDataForGoDaddy
                 start += 100;
                 end += 100;
             } while (load.Count > 0);
+
+            return result;
+        }
+
+
+        private static string LoadDailyIndustries()
+        {
+            PullDataContext db = new PullDataContext();
+            string uri = BaseUri + LoadDailyIndustryUri;
+
+            var today = DateTime.Now.ToShortDateString();
+            var yesterday = DateTime.Now.AddDays(-1);
+
+            string result = string.Empty;
+
+            BasicRequest br = new BasicRequest
+            {
+                token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
+            };
+
+            result = Post(uri, br);
+
 
             return result;
         }
