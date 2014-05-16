@@ -12,7 +12,7 @@ namespace PullDataForGoDaddy
 {
     class Program
     {
-        private static string BaseUri = @"http://localhost:45667"; //@"http://tickersymbol.info";  // 
+        private static string BaseUri = @"http://localhost:45667"; // @"http://tickersymbol.info";  // @"http://localhost:45667"; //
         private static string LoadSectorUri = @"/LoadSectors";
         private static string LoadDailySectorUri = @"/LoadDailySectors";
         private static string LoadIndustryUri = @"/LoadIndustries";
@@ -20,7 +20,7 @@ namespace PullDataForGoDaddy
 
         private static void Main(string[] args)
         {
-           //  LoadDailySectors();
+            // LoadDailySectors();
             LoadDailyIndustries();
             // LoadSectors();
 
