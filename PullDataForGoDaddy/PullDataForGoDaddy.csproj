@@ -57,6 +57,7 @@
     <Compile Include="Models\BasicRequest.cs" />
     <Compile Include="Models\Industry.cs" />
     <Compile Include="Models\IndustryRequest.cs" />
+    <Compile Include="Models\Person.cs" />
     <Compile Include="Models\PullDataContext.cs" />
     <Compile Include="Models\Sector.cs" />
     <Compile Include="Models\SectorRequest.cs" />

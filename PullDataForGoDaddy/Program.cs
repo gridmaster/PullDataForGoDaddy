@@ -12,7 +12,7 @@ namespace PullDataForGoDaddy
 {
     class Program
     {
-        private static string BaseUri = @"http://localhost:45667"; // @"http://tickersymbol.info";  // @"http://localhost:45667"; //
+        private static string BaseUri = @"http://tickersymbol.info";  // @"http://localhost:45667"; //
         private static string LoadSectorUri = @"/LoadSectors";
         private static string LoadDailySectorUri = @"/LoadDailySectors";
         private static string LoadIndustryUri = @"/LoadIndustries";
@@ -20,8 +20,19 @@ namespace PullDataForGoDaddy
 
         private static void Main(string[] args)
         {
-            // LoadDailySectors();
+            /*
+            var shite = GetWebData(BaseUri + "/Industries"); // "/Person?Id=1");
+            shite = shite.Substring(1);
+            shite = shite.Substring(0, shite.Length - 1);
+            var crap = shite.Replace("\\\"", "\"");
+            var spit = JsonConvert.DeserializeObject<List<Industry>>(crap);
+
+            var moreshite = xPost<Person>(@"http://tickersymbol.info/" + "Person?Id=1", new Person());
+            */
+
+            LoadDailySectors();
             LoadDailyIndustries();
+            
             // LoadSectors();
 
            //  LoadIndustries();
@@ -45,6 +56,26 @@ namespace PullDataForGoDaddy
 
             //var result = Post(uri, sr);
 
+        }
+
+        public static string GetWebData(string uri)
+        {
+            string webData = string.Empty;
+
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+                    webData = client.DownloadString(uri);
+                    webData = Regex.Replace(webData, @"[^\u0000-\u007F]", string.Empty).Replace("&", "&amp;");
+                }
+            }
+            catch (Exception ex)
+            {
+                //Log.WriteLog(string.Format("Error reading XML. Error: {0}", ex.Message));
+            }
+
+            return webData;
         }
 
         private static string LoadDailySectors()
@@ -95,7 +126,7 @@ namespace PullDataForGoDaddy
                     token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
                 };
 
-                result = Post(uri, sr);
+               // result = Post(uri, sr);
 
                 start += 100;
                 end += 100;
@@ -136,7 +167,7 @@ namespace PullDataForGoDaddy
                     token = "bc2afdc0-6f68-497a-9f6c-4e261331c256"
                 };
 
-                result = Post(uri, ir);
+                //result = Post(uri, ir);
 
                 start += 100;
                 end += 100;
@@ -181,7 +212,7 @@ namespace PullDataForGoDaddy
             }
         }
 
-        private static string Post<T>(string uri, T postData)
+        private static T xPost<T>(string uri, T postData)
         {
             string jsonData = string.Empty;
             const string applicationType = "application/json;charset=utf-8"; //  "application/json"; // "application/x-www-form-urlencoded"; // 
@@ -190,6 +221,61 @@ namespace PullDataForGoDaddy
             {
                 jsonData = JsonConvert.SerializeObject(postData);
                 
+                jsonData = jsonData.Replace(" 00:00:00", "");
+
+                byte[] requestData = Encoding.UTF8.GetBytes(jsonData);
+
+                WebRequest request = WebRequest.Create(uri);
+                request.Method = "POST";
+                request.ContentType = applicationType;
+                Stream dataStream = request.GetRequestStream();
+                dataStream.Write(requestData, 0, requestData.Length);
+                dataStream.Dispose();
+
+                string jsonResponse = string.Empty;
+                using (WebResponse response = request.GetResponse())
+                {
+                    if (((HttpWebResponse)response).StatusDescription == "OK")
+                    {
+                        dataStream = response.GetResponseStream();
+                        using (StreamReader reader = new StreamReader(dataStream))
+                        {
+                            jsonResponse = reader.ReadToEnd();
+                        }
+                    }
+                }
+
+                //BasicResponseData responseCode = JsonConvert.DeserializeObject<BasicResponseData>(jsonResponse);
+                //if (responseCode.error > 0)
+                //{
+                //    throw new Exception(string.Format("Error CodeString {0} Returned from Web Service call.",
+                //                                      responseCode.error));
+                //}
+
+                return JsonConvert.DeserializeObject<T>(jsonResponse);
+            }
+            catch (Exception ex)
+            {
+                string error = string.Format(
+                    "Exception in postAsync{0}URI: {1}{0}Post Data: {2}{0}Content Type: {3}{0}",
+                    Environment.NewLine,
+                    uri,
+                    jsonData,
+                    applicationType);
+
+                throw new Exception(error, ex);
+            }
+        }
+
+        private static string Post<T>(string uri, T postData)
+        {
+            string jsonData = string.Empty;
+            const string applicationType = "application/json;charset=utf-8"; //  "application/json"; // "application/x-www-form-urlencoded"; // 
+
+            try
+            {
+                jsonData = JsonConvert.SerializeObject(postData);
+
                 jsonData = jsonData.Replace(" 00:00:00", "");
 
                 byte[] requestData = Encoding.UTF8.GetBytes(jsonData);
