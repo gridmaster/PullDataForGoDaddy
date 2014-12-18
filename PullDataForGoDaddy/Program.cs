@@ -32,10 +32,11 @@ namespace PullDataForGoDaddy
 
             LoadDailySectors();
             LoadDailyIndustries();
-            
+
+            //Console.ReadKey();
             // LoadSectors();
 
-           //  LoadIndustries();
+            //  LoadIndustries();
 
             //var jsonData = JsonConvert.SerializeObject(load);
 
@@ -175,7 +176,6 @@ namespace PullDataForGoDaddy
 
             return result;
         }
-
 
         private static string LoadDailyIndustries()
         {
